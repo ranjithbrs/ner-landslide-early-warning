@@ -239,6 +239,31 @@ async function loadRiskZones() {
 
     riskZonesLayer.addLayer(zonesGeoLayer);
 
+    // Also add high-visibility center beacons for each risk zone
+    geojson.features.forEach((feature) => {
+      const p = feature.properties;
+      const fillColor = getLevelColor(p.early_warning_level);
+      const beacon = L.circleMarker([p.center[1], p.center[0]], {
+        radius: 8,
+        fillColor: fillColor,
+        color: "#ffffff",
+        weight: 1.5,
+        opacity: 1,
+        fillOpacity: 0.9,
+      });
+
+      beacon.bindTooltip(`⚠️ ${p.name} [${p.early_warning_level}: ${p.dynamic_hazard_index}]`, {
+        direction: "top",
+        offset: [0, -8],
+      });
+
+      beacon.on("click", () => {
+        focusOnZone(p.zone_id, [p.center[1], p.center[0]]);
+      });
+
+      riskZonesLayer.addLayer(beacon);
+    });
+
     // Populate Sidebar Vulnerability Matrix
     const features = geojson.features || [];
     // Sort descending by hazard index
@@ -662,14 +687,20 @@ function setupIncidentForm() {
  */
 function getRiskZoneStyle(level) {
   const color = getLevelColor(level);
-  let fillOpacity = 0.35;
-  if (level === "RED") fillOpacity = 0.50;
-  else if (level === "ORANGE") fillOpacity = 0.45;
+  let fillOpacity = 0.45;
+  let weight = 2.5;
+  if (level === "RED") {
+    fillOpacity = 0.65;
+    weight = 3.5;
+  } else if (level === "ORANGE") {
+    fillOpacity = 0.55;
+    weight = 3.0;
+  }
 
   return {
     color: color,
-    weight: 2,
-    opacity: 0.9,
+    weight: weight,
+    opacity: 0.95,
     fillColor: color,
     fillOpacity: fillOpacity,
   };
