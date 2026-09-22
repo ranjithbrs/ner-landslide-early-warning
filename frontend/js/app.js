@@ -39,29 +39,49 @@ document.addEventListener("DOMContentLoaded", async () => {
  * Initializes the Leaflet interactive map with dark basemaps and layer controls.
  */
 function initMap() {
-  const initial = REGION_COORDINATES.ALL;
   map = L.map("gis-map", {
-    center: initial.center,
-    zoom: initial.zoom,
     zoomControl: true,
+    maxZoom: 18,
+    minZoom: 4,
   });
 
-  // 1. Dark Tactical Basemap (CartoDB DarkMatter)
-  const cartoDark = L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-    {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      subdomains: "abcd",
-      maxZoom: 19,
-    }
-  ).addTo(map);
+  // 1. Esri Dark Gray Tactical Canvas (Zero watermarks, high-contrast dark theme)
+  const esriDark = L.layerGroup([
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+      attribution: "Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ",
+      maxZoom: 16,
+    }),
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}", {
+      maxZoom: 16,
+    }),
+  ]).addTo(map);
 
-  // Fallback OpenStreetMap standard tile layer
-  const osmStandard = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  // 2. Esri World Satellite Imagery (Realistic Himalayan mountain relief)
+  const esriSatellite = L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    {
+      attribution: "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
+      maxZoom: 18,
+    }
+  );
+
+  // 3. OpenStreetMap Standard Topo
+  const osmStandard = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
   });
+
+  // Fit view bounds strictly to the 8 North Eastern States of India
+  const nerBounds = [
+    [21.8, 88.0], // SW: Southern Tripura / Bengal border
+    [29.5, 97.4], // NE: Arunachal Pradesh
+  ];
+  map.fitBounds(nerBounds, { padding: [15, 15] });
+
+  // Ensure Leaflet calculates viewport dimensions properly
+  setTimeout(() => {
+    map.invalidateSize();
+  }, 200);
 
   // Layer groups for GIS overlays
   riskZonesLayer = L.layerGroup().addTo(map);
@@ -71,8 +91,9 @@ function initMap() {
 
   // Leaflet Layer Switcher Control
   const baseLayers = {
-    "Tactical Dark Map": cartoDark,
-    "Standard Terrain": osmStandard,
+    "Tactical Dark Canvas": esriDark,
+    "Satellite Topography": esriSatellite,
+    "OpenStreetMap": osmStandard,
   };
 
   const overlayLayers = {
@@ -455,8 +476,12 @@ function setupEventListeners() {
   // 1. Camera Fly-To Selector
   document.getElementById("region-camera-select").addEventListener("change", (e) => {
     const key = e.target.value;
-    const target = REGION_COORDINATES[key] || REGION_COORDINATES.ALL;
-    map.flyTo(target.center, target.zoom, { duration: 1.2 });
+    if (key === "ALL") {
+      map.fitBounds([[21.8, 88.0], [29.5, 97.4]], { padding: [15, 15] });
+    } else {
+      const target = REGION_COORDINATES[key] || REGION_COORDINATES.ALL;
+      map.flyTo(target.center, target.zoom, { duration: 1.2 });
+    }
   });
 
   // 2. Refresh Button
