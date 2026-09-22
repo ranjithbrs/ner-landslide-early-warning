@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NER Landslide Early Warning & Risk Monitoring System</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+  <!-- Top Navigation Bar -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🏔️</div>
+      <div class="brand-title">
+        <h1>NER Landslide Early Warning & Risk Monitoring Platform</h1>
+        <p>Ministry of Development of North Eastern Region (MDoNER) — PS 26001</p>
+      </div>
+    </div>
+    <div class="header-status">
+      <div class="phase-pill">Phase 1: Foundation Active</div>
+      <div id="backend-status-pill" class="status-pill">
+        <span class="status-indicator"></span>
+        <span id="backend-status-text">Connecting to API...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Viewport -->
+  <main>
+    <!-- Key Operational Metrics -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Monitored States</div>
+        <div class="metric-value">8</div>
+        <div class="metric-sub">NER Mountainous Region</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">High-Risk Corridors</div>
+        <div class="metric-value">8</div>
+        <div class="metric-sub">NH-10, NH-29, NH-6, NH-27...</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">IoT Sensor Stations</div>
+        <div class="metric-value" id="sensor-count-val">Ready</div>
+        <div class="metric-sub">Pore Pressure & Tilt Telemetry</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Field Reports Logged</div>
+        <div class="metric-value" id="reports-count-val">0</div>
+        <div class="metric-sub">Crowdsourced Ground Incidents</div>
+      </div>
+    </section>
+
+    <!-- Content Split: Map & Tactical Panels -->
+    <section class="content-grid">
+      <!-- GIS Map Viewport Container (Phase 3 Leaflet Integration) -->
+      <div class="map-container" id="gis-map">
+        <div class="map-placeholder">
+          <div class="map-placeholder-icon">🗺️</div>
+          <h3>Interactive GIS Map Viewport</h3>
+          <p>
+            The GIS container is initialized and ready. In <strong>Phase 3</strong>, this container will mount the interactive Leaflet mapping engine with live risk heatmaps, critical highway corridors, and sensor overlays.
+          </p>
+          <div class="phase-roadmap">
+            <span class="roadmap-step active">1. Foundation (Current)</span>
+            <span class="roadmap-step">2. ML Pipeline</span>
+            <span class="roadmap-step">3. Leaflet GIS</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Side Panel: Field Incident Reporting & Feed -->
+      <aside class="side-panel">
+        <!-- Citizen / Field Officer Incident Form -->
+        <div class="card">
+          <div class="card-title">
+            <span>📝 Field / Citizen Hazard Report</span>
+            <span style="font-size: 0.75rem; color: var(--accent-blue);">REST API Connected</span>
+          </div>
+          <form id="incident-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="reporter-name">Reporter Name</label>
+                <input type="text" id="reporter-name" class="form-control" placeholder="Officer / Citizen" required value="Field Officer Shillong">
+              </div>
+              <div class="form-group">
+                <label for="reporter-contact">Contact (Optional)</label>
+                <input type="text" id="reporter-contact" class="form-control" placeholder="+91 9876543210">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="report-state">State</label>
+                <select id="report-state" class="form-control">
+                  <option value="Meghalaya">Meghalaya</option>
+                  <option value="Assam">Assam</option>
+                  <option value="Sikkim">Sikkim</option>
+                  <option value="Nagaland">Nagaland</option>
+                  <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                  <option value="Manipur">Manipur</option>
+                  <option value="Mizoram">Mizoram</option>
+                  <option value="Tripura">Tripura</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="report-district">District</label>
+                <input type="text" id="report-district" class="form-control" placeholder="District" value="East Khasi Hills" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="report-lat">Latitude</label>
+                <input type="number" step="0.0001" id="report-lat" class="form-control" value="25.5788" required>
+              </div>
+              <div class="form-group">
+                <label for="report-lon">Longitude</label>
+                <input type="number" step="0.0001" id="report-lon" class="form-control" value="91.8933" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="incident-type">Observation Type</label>
+                <select id="incident-type" class="form-control">
+                  <option value="Tension Crack">Tension Crack on Slope</option>
+                  <option value="Rockfall">Rockfall on Highway</option>
+                  <option value="Mudslide">Mudslide / Debris Flow</option>
+                  <option value="Road Blockage">Complete Road Blockage</option>
+                  <option value="Subsidence">Road Subsidence / Cave-in</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="incident-severity">Severity</label>
+                <select id="incident-severity" class="form-control">
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High" selected>High</option>
+                  <option value="Critical">Critical</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="incident-desc">Description & Field Notes</label>
+              <textarea id="incident-desc" class="form-control" rows="2" placeholder="Describe fissure width, water seepage, or highway damage..." required>Visible slope bulging and 5cm tension crack noticed near km 42 retaining wall.</textarea>
+            </div>
+
+            <button type="submit" class="btn-primary" id="submit-report-btn">Submit to Incident Database</button>
+          </form>
+        </div>
+
+        <!-- Recent Hazards Feed -->
+        <div class="card">
+          <div class="card-title">
+            <span>⚠️ Recent Ground Observations</span>
+          </div>
+          <div class="incident-list" id="incident-feed">
+            <div style="color: var(--text-muted); font-size: 0.8rem; text-align: center; padding: 1rem;">
+              Loading recorded incidents...
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <!-- Footer with Runtime System Diagnostics -->
+  <footer>
+    <div>AI-Based Early Warning & Landslide Risk Monitoring Platform | MDoNER PS-26001</div>
+    <div id="footer-diagnostics">API: Checking... | Database: Checking... | ML Core: Phase 1 Baseline</div>
+  </footer>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
