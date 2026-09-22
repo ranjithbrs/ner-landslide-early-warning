@@ -40,9 +40,11 @@ document.addEventListener("DOMContentLoaded", async () => {
  */
 function initMap() {
   map = L.map("gis-map", {
-    zoomControl: true,
+    center: [25.85, 93.2],
+    zoom: 7,
+    minZoom: 5,
     maxZoom: 18,
-    minZoom: 4,
+    zoomControl: true,
   });
 
   // 1. Esri Dark Gray Tactical Canvas (Zero watermarks, high-contrast dark theme)
@@ -71,17 +73,11 @@ function initMap() {
     maxZoom: 19,
   });
 
-  // Fit view bounds strictly to the 8 North Eastern States of India
-  const nerBounds = [
-    [21.8, 88.0], // SW: Southern Tripura / Bengal border
-    [29.5, 97.4], // NE: Arunachal Pradesh
-  ];
-  map.fitBounds(nerBounds, { padding: [15, 15] });
-
-  // Ensure Leaflet calculates viewport dimensions properly
+  // Ensure Leaflet calculates viewport dimensions properly on startup
   setTimeout(() => {
     map.invalidateSize();
-  }, 200);
+    map.setView([25.85, 93.2], 7);
+  }, 250);
 
   // Layer groups for GIS overlays
   riskZonesLayer = L.layerGroup().addTo(map);
@@ -507,7 +503,7 @@ function setupEventListeners() {
   document.getElementById("region-camera-select").addEventListener("change", (e) => {
     const key = e.target.value;
     if (key === "ALL") {
-      map.fitBounds([[21.8, 88.0], [29.5, 97.4]], { padding: [15, 15] });
+      map.flyTo([25.85, 93.2], 7, { duration: 1.2 });
     } else {
       const target = REGION_COORDINATES[key] || REGION_COORDINATES.ALL;
       map.flyTo(target.center, target.zoom, { duration: 1.2 });
