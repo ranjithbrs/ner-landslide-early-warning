@@ -97,19 +97,19 @@ _ml_service_instance: Optional[BaseLandslideModel] = None
 def get_ml_service() -> BaseLandslideModel:
     """
     Factory function providing the singleton ML service.
-    Loads the trained model if available from Phase 2; otherwise returns the baseline.
+    Loads TrainedLandslidePredictor if the trained model artifact exists;
+    otherwise falls back to FallbackLandslidePredictor.
     """
     global _ml_service_instance
     if _ml_service_instance is None:
         model_path = settings.model_file_path
+        metadata_path = settings.metadata_file_path
         if model_path.exists():
-            # Will be imported and instantiated in Phase 2
             try:
-                import joblib
-                loaded_pipeline = joblib.load(model_path)
-                # If custom wrapper class exists in Phase 2, use it
-                _ml_service_instance = FallbackLandslidePredictor()
-            except Exception:
+                from backend.app.ml.service import TrainedLandslidePredictor
+                _ml_service_instance = TrainedLandslidePredictor(model_path, metadata_path)
+            except Exception as e:
+                print(f"[Warning] Failed to load trained ML model: {e}. Falling back to baseline.")
                 _ml_service_instance = FallbackLandslidePredictor()
         else:
             _ml_service_instance = FallbackLandslidePredictor()

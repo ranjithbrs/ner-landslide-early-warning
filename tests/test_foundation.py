@@ -94,16 +94,21 @@ def test_ml_schemas_and_fallback_predictor():
         ),
     )
 
-    ml_service = get_ml_service()
-    assert isinstance(ml_service, FallbackLandslidePredictor)
-    assert ml_service.is_calibrated is False
-    assert ml_service.version == "phase-1-uncalibrated-baseline"
+    # Verify direct FallbackLandslidePredictor contract
+    fallback_service = FallbackLandslidePredictor()
+    assert fallback_service.is_calibrated is False
+    assert fallback_service.version == "phase-1-uncalibrated-baseline"
 
-    prediction = ml_service.predict(sample_input)
+    prediction = fallback_service.predict(sample_input)
     assert prediction.location_name == "Kalimpong Slope NH-10"
     assert prediction.early_warning_level in ["GREEN", "YELLOW", "ORANGE", "RED"]
     assert 0.0 <= prediction.susceptibility_probability <= 1.0
     assert 0.0 <= prediction.dynamic_hazard_index <= 100.0
+
+    # Also verify that get_ml_service() returns a valid BaseLandslideModel instance
+    active_service = get_ml_service()
+    assert active_service is not None
+    assert hasattr(active_service, "predict")
 
 
 def test_incident_reporting_workflow(client):

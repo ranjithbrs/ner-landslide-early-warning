@@ -1,0 +1,214 @@
+{
+  "model_type": "RandomForestClassifier",
+  "version": "1.0.0",
+  "trained_at": "2026-09-22T11:01:20.451049+00:00",
+  "dataset": {
+    "source": "Synthetically generated prototype calibrated for NER terrain",
+    "total_samples": 6000,
+    "train_samples": 4800,
+    "test_samples": 1200,
+    "target": "landslide_occurred",
+    "positive_ratio": 0.243
+  },
+  "model_comparison": {
+    "naive_baseline": {
+      "model_name": "Naive Baseline (Majority)",
+      "accuracy": 0.7567,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "roc_auc": 0.5,
+      "confusion_matrix": [
+        [
+          908,
+          0
+        ],
+        [
+          292,
+          0
+        ]
+      ]
+    },
+    "logistic_regression": {
+      "model_name": "Logistic Regression",
+      "accuracy": 0.975,
+      "precision": 0.9456,
+      "recall": 0.9521,
+      "f1_score": 0.9488,
+      "roc_auc": 0.997,
+      "confusion_matrix": [
+        [
+          892,
+          16
+        ],
+        [
+          14,
+          278
+        ]
+      ],
+      "cv_roc_auc_mean": 0.9968,
+      "cv_roc_auc_std": 0.0006
+    },
+    "random_forest": {
+      "model_name": "Random Forest Classifier",
+      "accuracy": 0.9492,
+      "precision": 0.8511,
+      "recall": 0.9589,
+      "f1_score": 0.9018,
+      "roc_auc": 0.9934,
+      "confusion_matrix": [
+        [
+          859,
+          49
+        ],
+        [
+          12,
+          280
+        ]
+      ],
+      "cv_roc_auc_mean": 0.9939,
+      "cv_roc_auc_std": 0.001
+    }
+  },
+  "feature_importances": [
+    {
+      "feature": "rainfall_72h_antecedent_mm",
+      "importance": 0.2413
+    },
+    {
+      "feature": "rainfall_24h_mm",
+      "importance": 0.2089
+    },
+    {
+      "feature": "rainfall_intensity_mm_h",
+      "importance": 0.1931
+    },
+    {
+      "feature": "soil_moisture_pct",
+      "importance": 0.1711
+    },
+    {
+      "feature": "pore_water_pressure_kpa",
+      "importance": 0.1001
+    },
+    {
+      "feature": "slope_deg",
+      "importance": 0.0168
+    },
+    {
+      "feature": "tilt_rate_mm_h",
+      "importance": 0.0154
+    },
+    {
+      "feature": "dist_to_fault_m",
+      "importance": 0.0091
+    },
+    {
+      "feature": "dist_to_drainage_m",
+      "importance": 0.0076
+    },
+    {
+      "feature": "topographic_wetness_index",
+      "importance": 0.0061
+    },
+    {
+      "feature": "elevation_m",
+      "importance": 0.0057
+    },
+    {
+      "feature": "plan_curvature",
+      "importance": 0.0047
+    },
+    {
+      "feature": "profile_curvature",
+      "importance": 0.0044
+    },
+    {
+      "feature": "aspect_deg",
+      "importance": 0.0042
+    },
+    {
+      "feature": "lulc_code_1",
+      "importance": 0.0026
+    },
+    {
+      "feature": "lulc_code_3",
+      "importance": 0.0021
+    },
+    {
+      "feature": "lithology_code_1",
+      "importance": 0.0017
+    },
+    {
+      "feature": "lulc_code_4",
+      "importance": 0.0015
+    },
+    {
+      "feature": "lithology_code_5",
+      "importance": 0.0009
+    },
+    {
+      "feature": "lulc_code_2",
+      "importance": 0.0009
+    },
+    {
+      "feature": "lithology_code_4",
+      "importance": 0.0008
+    },
+    {
+      "feature": "lithology_code_3",
+      "importance": 0.0007
+    },
+    {
+      "feature": "lithology_code_2",
+      "importance": 0.0005
+    }
+  ],
+  "features": {
+    "numerical": [
+      "elevation_m",
+      "slope_deg",
+      "aspect_deg",
+      "profile_curvature",
+      "plan_curvature",
+      "topographic_wetness_index",
+      "dist_to_fault_m",
+      "dist_to_drainage_m",
+      "rainfall_24h_mm",
+      "rainfall_72h_antecedent_mm",
+      "rainfall_intensity_mm_h",
+      "soil_moisture_pct",
+      "pore_water_pressure_kpa",
+      "tilt_rate_mm_h"
+    ],
+    "categorical": [
+      "lithology_code",
+      "lulc_code"
+    ],
+    "all_features": [
+      "elevation_m",
+      "slope_deg",
+      "aspect_deg",
+      "profile_curvature",
+      "plan_curvature",
+      "topographic_wetness_index",
+      "dist_to_fault_m",
+      "dist_to_drainage_m",
+      "rainfall_24h_mm",
+      "rainfall_72h_antecedent_mm",
+      "rainfall_intensity_mm_h",
+      "soil_moisture_pct",
+      "pore_water_pressure_kpa",
+      "tilt_rate_mm_h",
+      "lithology_code_1",
+      "lithology_code_2",
+      "lithology_code_3",
+      "lithology_code_4",
+      "lithology_code_5",
+      "lulc_code_1",
+      "lulc_code_2",
+      "lulc_code_3",
+      "lulc_code_4"
+    ]
+  }
+}
