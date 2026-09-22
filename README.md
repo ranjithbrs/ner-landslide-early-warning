@@ -25,8 +25,8 @@ This platform provides an **AI-enabled real-time early warning and monitoring sy
 | Phase | Focus Area | Status | Deliverables |
 | :--- | :--- | :--- | :--- |
 | **Phase 1** | **Project Foundation** | **Completed** | Clean directory architecture, FastAPI core, SQLite database, Pydantic schemas, ML abstract interface & baseline contract, responsive frontend shell, automated test suite. |
-| **Phase 2** | **ML Pipeline** | *Awaiting Approval* | Prototype/simulated dataset generator for NER corridors, feature engineering pipeline, model comparisons (Baseline vs Random Forest vs Gradient Boosting), evaluation metrics, and prediction service. |
-| **Phase 3** | **Interactive GIS Dashboard** | *Pending Phase 2* | Leaflet interactive map with risk heatmaps, IoT sensor popups, road network blockage status, emergency triage, and crowdsourced reporting markers. |
+| **Phase 2** | **ML Pipeline** | **Completed** | Calibrated prototype dataset generator for 15 NER corridors, featurization pipeline, model comparisons (Naive vs Logistic Regression vs Random Forest: 94.9% accuracy, 95.9% recall, 0.993 ROC-AUC), serialized artifacts, and real-time prediction service. |
+| **Phase 3** | **Interactive GIS Dashboard** | **Completed** | Leaflet.js interactive tactical GIS map with OGC GeoJSON feeds for risk polygons, critical highway corridors, IoT sensor telemetry, crowdsourced field hazard reports, and interactive real-time ML stress simulation sandbox. |
 
 ---
 

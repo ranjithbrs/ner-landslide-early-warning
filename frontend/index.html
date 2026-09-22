@@ -3,11 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NER Landslide Early Warning & Risk Monitoring System</title>
+  <title>NER Landslide Early Warning & Risk Monitoring GIS Platform</title>
+  
+  <!-- Leaflet GIS CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-  <!-- Top Navigation Bar -->
+  <!-- Header Bar -->
   <header>
     <div class="brand">
       <div class="brand-icon">🏔️</div>
@@ -16,8 +19,20 @@
         <p>Ministry of Development of North Eastern Region (MDoNER) — PS 26001</p>
       </div>
     </div>
-    <div class="header-status">
-      <div class="phase-pill">Phase 1: Foundation Active</div>
+    <div class="header-controls">
+      <!-- Quick Region/Corridor Camera Fly-To Selector -->
+      <select id="region-camera-select" class="zone-selector" title="Focus map on specific NER corridor">
+        <option value="ALL">📍 Focus: Entire North Eastern Region (8 States)</option>
+        <option value="SKM">Sikkim — NH-10 Teesta Corridor</option>
+        <option value="ASM">Assam — NH-27 Lumding-Haflong</option>
+        <option value="NGL">Nagaland — NH-29 Dimapur-Kohima</option>
+        <option value="MEG">Meghalaya — NH-6 Shillong Cut</option>
+        <option value="ARN">Arunachal Pradesh — Bomdila Route</option>
+        <option value="MNP">Manipur — Tupul Railway Corridor</option>
+        <option value="MIZ">Mizoram — Champhai Border Ridge</option>
+        <option value="TRP">Tripura — Jampui Hills Section</option>
+      </select>
+
       <div id="backend-status-pill" class="status-pill">
         <span class="status-indicator"></span>
         <span id="backend-status-text">Connecting to API...</span>
@@ -25,57 +40,130 @@
     </div>
   </header>
 
-  <!-- Main Content Viewport -->
+  <!-- Main Content Layout -->
   <main>
-    <!-- Key Operational Metrics -->
+    <!-- Key Regional Metrics Bar (All API-Backed) -->
     <section class="metrics-grid">
       <div class="metric-card">
-        <div class="metric-label">Monitored States</div>
-        <div class="metric-value">8</div>
-        <div class="metric-sub">NER Mountainous Region</div>
+        <div class="metric-label">Monitored Corridors</div>
+        <div class="metric-value" id="corridor-count-val">8</div>
+        <div class="metric-sub">Arterial Mountain Highways</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">High-Risk Corridors</div>
-        <div class="metric-value">8</div>
-        <div class="metric-sub">NH-10, NH-29, NH-6, NH-27...</div>
+        <div class="metric-label">Active Warning Zones</div>
+        <div class="metric-value" id="active-warnings-val">
+          <span id="val-red" style="color: var(--risk-red);">0</span> / 
+          <span id="val-orange" style="color: var(--risk-orange);">0</span>
+        </div>
+        <div class="metric-sub">Critical Red / Orange Alert Stages</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">IoT Sensor Stations</div>
-        <div class="metric-value" id="sensor-count-val">Ready</div>
+        <div class="metric-label">IoT Ground Stations</div>
+        <div class="metric-value" id="sensor-count-val">9</div>
         <div class="metric-sub">Pore Pressure & Tilt Telemetry</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Field Reports Logged</div>
-        <div class="metric-value" id="reports-count-val">0</div>
-        <div class="metric-sub">Crowdsourced Ground Incidents</div>
+        <div class="metric-label">Highest Risk Zone</div>
+        <div class="metric-value" id="highest-risk-val" style="font-size: 1.15rem; color: var(--risk-red);">Loading...</div>
+        <div class="metric-sub" id="highest-risk-sub">Dynamic Landslide Hazard Index</div>
       </div>
     </section>
 
-    <!-- Content Split: Map & Tactical Panels -->
-    <section class="content-grid">
-      <!-- GIS Map Viewport Container (Phase 3 Leaflet Integration) -->
-      <div class="map-container" id="gis-map">
-        <div class="map-placeholder">
-          <div class="map-placeholder-icon">🗺️</div>
-          <h3>Interactive GIS Map Viewport</h3>
-          <p>
-            The GIS container is initialized and ready. In <strong>Phase 3</strong>, this container will mount the interactive Leaflet mapping engine with live risk heatmaps, critical highway corridors, and sensor overlays.
-          </p>
-          <div class="phase-roadmap">
-            <span class="roadmap-step active">1. Foundation (Current)</span>
-            <span class="roadmap-step">2. ML Pipeline</span>
-            <span class="roadmap-step">3. Leaflet GIS</span>
+    <!-- Content Split: Leaflet GIS Map & Tactical Side Control Panel -->
+    <section class="dashboard-grid">
+      <!-- Left: Interactive Leaflet Map Viewport -->
+      <div class="map-wrapper">
+        <div class="map-header-bar">
+          <div style="font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+            <span>🗺️ Operational GIS Viewport</span>
+            <span style="color: var(--text-muted); font-size: 0.72rem;">(CartoDB DarkMatter Tiles | WGS84)</span>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button id="refresh-layers-btn" class="btn-secondary" style="padding: 0.2rem 0.6rem; font-size: 0.72rem; width: auto;">
+              🔄 Refresh Feeds
+            </button>
           </div>
         </div>
+        <div id="gis-map"></div>
       </div>
 
-      <!-- Side Panel: Field Incident Reporting & Feed -->
+      <!-- Right: Tactical Control Panel & Live Feed -->
       <aside class="side-panel">
-        <!-- Citizen / Field Officer Incident Form -->
+        <!-- 1. Regional Risk Ranking Matrix -->
         <div class="card">
           <div class="card-title">
-            <span>📝 Field / Citizen Hazard Report</span>
-            <span style="font-size: 0.75rem; color: var(--accent-blue);">REST API Connected</span>
+            <span>🚨 Vulnerable Corridor Matrix</span>
+            <span style="font-size: 0.7rem; color: var(--accent-blue);">Click to Zoom</span>
+          </div>
+          <div class="zone-list" id="vulnerable-zones-list">
+            <div style="text-align: center; color: var(--text-muted); font-size: 0.78rem; padding: 0.5rem;">
+              Loading risk zones from API...
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Interactive Real-Time ML Simulation Sandbox -->
+        <div class="card">
+          <div class="card-title">
+            <span>🧪 ML Stress Simulation</span>
+            <span style="font-size: 0.7rem; color: var(--accent-indigo);">Random Forest Core</span>
+          </div>
+          <div class="sim-controls">
+            <div class="form-group" style="margin-bottom: 0.4rem;">
+              <label for="sim-zone-select">Select Slope Catchment</label>
+              <select id="sim-zone-select" class="form-control">
+                <option value="ZONE-SKM-01">NH-10 Teesta Gorge (Sikkim)</option>
+                <option value="ZONE-ASM-01">Haflong Railway Cut (Assam)</option>
+                <option value="ZONE-NGL-01">Kohima By-pass Phesama (Nagaland)</option>
+                <option value="ZONE-MEG-01">Shillong Escarpment (Meghalaya)</option>
+                <option value="ZONE-MNP-01">Tupul Incline Cut (Manipur)</option>
+                <option value="ZONE-ARN-01">Bomdila Route (Arunachal)</option>
+                <option value="ZONE-MIZ-01">Champhai Ridge (Mizoram)</option>
+                <option value="ZONE-TRP-01">Jampui Hills (Tripura)</option>
+              </select>
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>24h Rainfall Stress</span>
+                <span id="val-rain-display" style="font-weight: 700; color: var(--accent-blue);">115 mm</span>
+              </div>
+              <input type="range" id="sim-rain-slider" min="0" max="250" value="115" step="5">
+            </div>
+
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Soil Moisture Saturation</span>
+                <span id="val-moist-display" style="font-weight: 700; color: var(--accent-blue);">89 %</span>
+              </div>
+              <input type="range" id="sim-moist-slider" min="10" max="100" value="89" step="1">
+            </div>
+
+            <button id="run-simulation-btn" class="btn-secondary">
+              ⚡ Recompute Risk with ML Model
+            </button>
+
+            <!-- Simulation Result Card -->
+            <div id="sim-result-box" style="display: none; background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: 4px; font-size: 0.75rem; border-left: 3px solid var(--accent-blue);">
+              <div style="font-weight: 700; display: flex; justify-content: space-between;">
+                <span id="sim-res-title">Simulation Result</span>
+                <span id="sim-res-badge" class="popup-badge badge-red">RED</span>
+              </div>
+              <div style="margin-top: 0.25rem;">
+                Susceptibility: <strong id="sim-res-susc">95.4%</strong> | DLHI Score: <strong id="sim-res-dlhi">84.2</strong>
+              </div>
+              <div id="sim-res-action" style="color: var(--text-secondary); margin-top: 0.2rem; font-size: 0.7rem;">
+                Evacuation advisory active.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Citizen / Field Officer Incident Report Form -->
+        <div class="card">
+          <div class="card-title">
+            <span>📝 Field Hazard Submission</span>
+            <span style="font-size: 0.7rem; color: var(--risk-green);">Live SQL Sync</span>
           </div>
           <form id="incident-form">
             <div class="form-row">
@@ -84,8 +172,8 @@
                 <input type="text" id="reporter-name" class="form-control" placeholder="Officer / Citizen" required value="Field Officer Shillong">
               </div>
               <div class="form-group">
-                <label for="reporter-contact">Contact (Optional)</label>
-                <input type="text" id="reporter-contact" class="form-control" placeholder="+91 9876543210">
+                <label for="reporter-contact">Contact</label>
+                <input type="text" id="reporter-contact" class="form-control" placeholder="+91 9876543210" value="+91 9435011223">
               </div>
             </div>
 
@@ -143,21 +231,21 @@
             </div>
 
             <div class="form-group">
-              <label for="incident-desc">Description & Field Notes</label>
-              <textarea id="incident-desc" class="form-control" rows="2" placeholder="Describe fissure width, water seepage, or highway damage..." required>Visible slope bulging and 5cm tension crack noticed near km 42 retaining wall.</textarea>
+              <label for="incident-desc">Field Notes</label>
+              <textarea id="incident-desc" class="form-control" rows="2" placeholder="Fissure width, slope creep, water seepage..." required>Visible slope bulging and 5cm tension crack noticed along road cut retaining wall.</textarea>
             </div>
 
-            <button type="submit" class="btn-primary" id="submit-report-btn">Submit to Incident Database</button>
+            <button type="submit" class="btn-primary" id="submit-report-btn">Submit to GIS Map & Database</button>
           </form>
         </div>
 
-        <!-- Recent Hazards Feed -->
+        <!-- 4. Recent Field Observations Feed -->
         <div class="card">
           <div class="card-title">
-            <span>⚠️ Recent Ground Observations</span>
+            <span>⚠️ Recent Field Observations</span>
           </div>
           <div class="incident-list" id="incident-feed">
-            <div style="color: var(--text-muted); font-size: 0.8rem; text-align: center; padding: 1rem;">
+            <div style="color: var(--text-muted); font-size: 0.78rem; text-align: center; padding: 0.5rem;">
               Loading recorded incidents...
             </div>
           </div>
@@ -166,12 +254,14 @@
     </section>
   </main>
 
-  <!-- Footer with Runtime System Diagnostics -->
+  <!-- Footer with Dynamic Diagnostics -->
   <footer>
     <div>AI-Based Early Warning & Landslide Risk Monitoring Platform | MDoNER PS-26001</div>
-    <div id="footer-diagnostics">API: Checking... | Database: Checking... | ML Core: Phase 1 Baseline</div>
+    <div id="footer-diagnostics">API: Checking... | Database: Checking... | ML Core: Checking...</div>
   </footer>
 
+  <!-- Leaflet GIS JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="/static/js/app.js"></script>
 </body>
 </html>

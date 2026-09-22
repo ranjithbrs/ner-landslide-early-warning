@@ -59,14 +59,12 @@ def submit_incident_report(payload: IncidentReportCreate, db: sqlite3.Connection
     )
 
 
-@router.get("/", response_model=List[IncidentReportResponse], summary="List Incident Reports")
-def list_incident_reports(
-    state: Optional[str] = Query(None, description="Filter by NER State"),
-    status: Optional[str] = Query(None, description="Filter by status (pending, verified, etc.)"),
-    limit: int = Query(50, ge=1, le=500),
-    db: sqlite3.Connection = Depends(get_db),
-):
-    """Retrieves reported hazards for dashboard visualization and emergency response."""
+def _fetch_reports(
+    db: sqlite3.Connection,
+    state: Optional[str] = None,
+    status: Optional[str] = None,
+    limit: int = 50,
+) -> List[IncidentReportResponse]:
     cursor = db.cursor()
     query = "SELECT * FROM incident_reports WHERE 1=1"
     params = []
@@ -105,6 +103,17 @@ def list_incident_reports(
     ]
 
 
+@router.get("/", response_model=List[IncidentReportResponse], summary="List Incident Reports")
+def list_incident_reports(
+    state: Optional[str] = Query(None, description="Filter by NER State"),
+    status: Optional[str] = Query(None, description="Filter by status (pending, verified, etc.)"),
+    limit: int = Query(50, ge=1, le=500),
+    db: sqlite3.Connection = Depends(get_db),
+):
+    """Retrieves reported hazards for dashboard visualization and emergency response."""
+    return _fetch_reports(db, state=state, status=status, limit=limit)
+
+
 @router.post("/batch-sync", summary="Batch Sync Offline Queued Reports")
 def batch_sync_reports(reports: List[IncidentReportCreate], db: sqlite3.Connection = Depends(get_db)):
     """Receives an array of reports buffered on field devices during network outage."""
@@ -114,3 +123,34 @@ def batch_sync_reports(reports: List[IncidentReportCreate], db: sqlite3.Connecti
         submit_incident_report(report, db)
         synced_count += 1
     return {"status": "success", "synced_records": synced_count}
+
+
+@router.get("/geojson", summary="Get Incidents as GeoJSON Points for Leaflet GIS")
+def get_reports_geojson(db: sqlite3.Connection = Depends(get_db)):
+    """Returns all recorded hazard incidents as GeoJSON Point features."""
+    reports = _fetch_reports(db, limit=200)
+    features = []
+    for r in reports:
+        features.append({
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [r.longitude, r.latitude],
+            },
+            "properties": {
+                "id": r.id,
+                "reporter_name": r.reporter_name,
+                "contact_number": r.contact_number,
+                "state": r.state,
+                "district": r.district,
+                "incident_type": r.incident_type,
+                "severity": r.severity,
+                "description": r.description,
+                "status": r.status,
+                "created_at": r.created_at,
+            },
+        })
+    return {
+        "type": "FeatureCollection",
+        "features": features,
+    }

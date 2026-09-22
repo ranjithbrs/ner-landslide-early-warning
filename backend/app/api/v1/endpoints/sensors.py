@@ -91,3 +91,34 @@ def get_latest_sensor_readings(db: sqlite3.Connection = Depends(get_db)):
             )
         )
     return results
+
+
+@router.get("/geojson", summary="Get Latest Sensors as GeoJSON Points for Leaflet GIS")
+def get_sensors_geojson(db: sqlite3.Connection = Depends(get_db)):
+    """Returns the latest sensor readings as GeoJSON Point features."""
+    readings = get_latest_sensor_readings(db)
+    features = []
+    for r in readings:
+        features.append({
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [r.longitude, r.latitude],
+            },
+            "properties": {
+                "station_id": r.station_id,
+                "station_name": r.station_name,
+                "state": r.state,
+                "district": r.district,
+                "soil_moisture_pct": r.soil_moisture_pct,
+                "pore_pressure_kpa": r.pore_pressure_kpa,
+                "rainfall_1h_mm": r.rainfall_1h_mm,
+                "tilt_displacement_mm": r.tilt_displacement_mm,
+                "battery_pct": r.battery_pct,
+                "recorded_at": r.recorded_at,
+            },
+        })
+    return {
+        "type": "FeatureCollection",
+        "features": features,
+    }
