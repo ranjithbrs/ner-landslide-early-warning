@@ -233,7 +233,12 @@ async function loadRiskZones() {
             </div>
           </div>
         `;
-        layer.bindPopup(popupContent);
+        layer.bindPopup(popupContent, {
+          autoPan: true,
+          autoPanPadding: [60, 60],
+          offset: [0, -10],
+          maxWidth: 340,
+        });
       },
     });
 
@@ -539,15 +544,24 @@ function setupEventListeners() {
  * Smoothly flies map camera to a specific slope catchment and opens its popup.
  */
 window.focusOnZone = function (zoneId, centerCoords) {
-  map.flyTo(centerCoords, 11, { duration: 1.0 });
+  // Offset latitude slightly north (+0.035) so the popup has full clearance from top header
+  const targetLat = centerCoords[0] + 0.035;
+  const targetLon = centerCoords[1];
+  map.flyTo([targetLat, targetLon], 11, { duration: 0.8 });
 
-  riskZonesLayer.eachLayer((layerGroup) => {
-    layerGroup.eachLayer((layer) => {
-      if (layer.feature && layer.feature.properties.zone_id === zoneId) {
+  setTimeout(() => {
+    riskZonesLayer.eachLayer((layer) => {
+      if (layer.feature && layer.feature.properties && layer.feature.properties.zone_id === zoneId) {
         layer.openPopup();
+      } else if (layer.eachLayer) {
+        layer.eachLayer((sub) => {
+          if (sub.feature && sub.feature.properties && sub.feature.properties.zone_id === zoneId) {
+            sub.openPopup();
+          }
+        });
       }
     });
-  });
+  }, 900);
 };
 
 /**

@@ -234,6 +234,12 @@ main {
   padding: 4px !important;
 }
 
+.leaflet-popup-content {
+  margin: 10px 14px !important;
+  line-height: 1.35 !important;
+  max-width: 330px !important;
+}
+
 .leaflet-popup-tip {
   background-color: #182238 !important;
   border: 1px solid #334155 !important;
