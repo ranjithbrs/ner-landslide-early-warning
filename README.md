@@ -7,6 +7,8 @@
 [![Leaflet](https://img.shields.io/badge/Leaflet-1.9.4-199900.svg?logo=leaflet&logoColor=white)](https://leafletjs.com/)
 [![SQLite](https://img.shields.io/badge/SQLite-Integrated-003B57.svg?logo=sqlite&logoColor=white)](https://sqlite.org/)
 [![Tests](https://img.shields.io/badge/Tests-18%20Passed-brightgreen.svg?logo=pytest&logoColor=white)]()
+[![CI Pipeline](https://github.com/ranjithbrs/ner-landslide-early-warning/actions/workflows/ci.yml/badge.svg)](https://github.com/ranjithbrs/ner-landslide-early-warning/actions/workflows/ci.yml)
+[![Portfolio Case Study](https://img.shields.io/badge/Portfolio-Case%20Study-blueviolet.svg)](PORTFOLIO.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
@@ -231,9 +233,25 @@ pip install -r requirements.txt
 ```
 
 ### 6.3 Run the Application
+
+#### Option A: One-Click Launch (Windows)
+Double-click `run.bat` or execute in PowerShell:
+```powershell
+.\run.ps1
+```
+*This automatically activates your environment, verifies the ML model artifact, starts the Uvicorn server, and opens your default browser directly to the tactical GIS dashboard.*
+
+#### Option B: Manual CLI
 ```bash
 # Start the FastAPI server (serves both REST API and Frontend Dashboard)
 python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+#### Option C: Docker Container
+```bash
+# Build and run the container
+docker build -t ner-landslide-system .
+docker run -d -p 8000:8000 --name landslide-app ner-landslide-system
 ```
 
 - **Live Dashboard**: Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) in your browser.

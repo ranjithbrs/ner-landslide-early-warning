@@ -1,7 +1,7 @@
 {
   "model_type": "RandomForestClassifier",
   "version": "1.0.0",
-  "trained_at": "2026-09-22T11:01:20.451049+00:00",
+  "trained_at": "2026-09-22T13:17:00.039045+00:00",
   "dataset": {
     "source": "Synthetically generated prototype calibrated for NER terrain",
     "total_samples": 6000,
