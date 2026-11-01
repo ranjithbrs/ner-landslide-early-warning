@@ -6,9 +6,7 @@ prediction service behavior across edge scenarios, and REST API integration.
 
 from pathlib import Path
 import pytest
-from fastapi.testclient import TestClient
 
-from backend.app.main import app
 from backend.app.ml.interface import get_ml_service, BaseLandslideModel
 from backend.app.ml.schemas import (
     TerrainFeatures,
@@ -22,11 +20,6 @@ from backend.ml_engine.pipeline import (
     extract_feature_matrix,
     ALL_MODEL_FEATURES,
 )
-
-
-@pytest.fixture
-def client():
-    return TestClient(app)
 
 
 def test_synthetic_dataset_properties():

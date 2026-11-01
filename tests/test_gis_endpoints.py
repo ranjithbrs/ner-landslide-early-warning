@@ -5,19 +5,6 @@ and serve real-time database and ML-evaluated attributes for Leaflet visualizati
 """
 
 import pytest
-from fastapi.testclient import TestClient
-from backend.app.core.database import init_db
-from backend.app.main import app
-
-
-@pytest.fixture(autouse=True)
-def ensure_db():
-    init_db()
-
-
-@pytest.fixture
-def client():
-    return TestClient(app)
 
 
 def test_risk_zones_geojson_structure(client):

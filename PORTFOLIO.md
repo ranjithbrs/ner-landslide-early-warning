@@ -86,8 +86,24 @@ In landslide early warning, **a false negative costs lives, while a false positi
 | Model Architecture | Accuracy | Precision | Recall | F1-Score | ROC-AUC | Primary Rationale |
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
 | **Naive Baseline (Majority)** | 75.67% | 0.00% | 0.00% | 0.0000 | 0.5000 | Baseline zero-prediction control |
-| **Logistic Regression** | 97.50% | 96.11% | 93.49% | 0.9478 | 0.9970 | Linear benchmark with L2 regularization |
+| **Logistic Regression** | 97.50% | 94.56% | 95.21% | 0.9488 | 0.9970 | Linear benchmark with L2 regularization |
 | **Random Forest Classifier** | **94.92%** | **85.11%** | **95.89%** | **0.9018** | **0.9934** | **Selected Model: Non-linear capture of rain-tilt-moisture thresholds with maximum recall** |
+
+### Confusion Matrix (Test Set $N=1,200$):
+| Predicted \ Actual | Stable Slope (Actual 0) | Landslide Event (Actual 1) | Row Total |
+| :--- | :---: | :---: | :---: |
+| **Predicted Stable (0)** | **859** (TN) | **12** (FN) | 871 |
+| **Predicted Landslide (1)** | **49** (FP) | **280** (TP) | 329 |
+| **Column Total** | 908 | 292 | **1,200** |
+
+- **Recall**: 95.89% (280/292 detected)
+- **Precision**: 85.11% (280/329)
+- **F1-Score**: 0.9018
+
+### Architecture & Hyperparameters:
+- **Pipeline**: Scikit-Learn `Pipeline` wrapping a `ColumnTransformer` (median impute + standard scale for numericals, most frequent impute + one-hot encode for categoricals) and `RandomForestClassifier`.
+- **Hyperparameters**: `n_estimators=120`, `max_depth=14`, `min_samples_split=6`, `min_samples_leaf=2`, `class_weight='balanced'`, `random_state=42`.
+- **Reproducibility**: `python -m backend.ml_engine.train` followed by `pytest tests/ -v`.
 
 ### Top Predictor Features Identified:
 1. **72-Hour Antecedent Rainfall (24.13%)**: Prolonged soil saturation primes slopes for failure.
@@ -102,12 +118,12 @@ In landslide early warning, **a false negative costs lives, while a false positi
 ## 6. Key Engineering Innovations
 
 1. **Dual-Tier Dynamic Landslide Hazard Index (DLHI)**:
-   $$\text{DLHI} = 0.50 \times P_{\text{ML}} + 0.20 \times \bar{R}_{\text{norm}} + 0.15 \times \bar{M}_{\text{norm}} + 0.15 \times \bar{T}_{\text{norm}}$$
+   $$\text{DLHI} = 0.35 \times (\text{Prob}_{\text{ML}} \times 100) + 0.30 \times \min\left(\frac{R_{24\text{h}}}{R_{\text{crit}}} \times 100, 120\right) + 0.20 \times \min\left(\frac{SM_{\%}}{SM_{\text{crit}}} \times 100, 120\right) + 0.15 \times \min\left(\frac{\dot{\theta}}{2.0} \times 100, 150\right)$$
    Calculates an unambiguous score from 0 to 100, driving official alerts:
-   - **GREEN (Normal / Monitored)**: DLHI < 30
-   - **YELLOW (Advisory)**: 30 ≤ DLHI < 55
-   - **ORANGE (Warning)**: 55 ≤ DLHI < 75
-   - **RED (Emergency Evacuation / Closure)**: DLHI ≥ 75
+   - **GREEN (Normal / Monitored)**: $\text{DLHI} < 30$
+   - **YELLOW (Advisory)**: $30 \le \text{DLHI} < 50$
+   - **ORANGE (Warning)**: $50 \le \text{DLHI} < 75$
+   - **RED (Emergency Evacuation / Closure)**: $\text{DLHI} \ge 75$
 
 2. **Zero-Watermark High-Performance GIS Canvas**:
    Built on Leaflet 1.9.4 utilizing Esri Dark Gray Tactical Base + Labels and Esri World Imagery Satellite layers, ensuring crystal-clear visualization without API key throttles or watermarks.

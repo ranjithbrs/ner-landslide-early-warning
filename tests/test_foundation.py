@@ -6,10 +6,8 @@ and API endpoint contracts.
 
 import sqlite3
 import pytest
-from fastapi.testclient import TestClient
 from backend.app.core.config import settings
-from backend.app.core.database import init_db, get_db_connection
-from backend.app.main import app
+from backend.app.core.database import get_db_connection
 from backend.app.ml.schemas import (
     TerrainFeatures,
     MeteorologicalFeatures,
@@ -17,18 +15,6 @@ from backend.app.ml.schemas import (
     LandslidePredictionInput,
 )
 from backend.app.ml.interface import get_ml_service, FallbackLandslidePredictor
-
-
-@pytest.fixture(autouse=True)
-def setup_test_db():
-    """Ensure database schema is initialized before every test."""
-    init_db()
-
-
-@pytest.fixture
-def client():
-    """FastAPI TestClient fixture."""
-    return TestClient(app)
 
 
 def test_settings_loaded():

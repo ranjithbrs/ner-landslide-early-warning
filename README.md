@@ -148,6 +148,10 @@ flowchart TD
 #### Dataset Grounding:
 The dataset was synthetically generated using empirical geomorphological and hydrological probability distributions calibrated to 15 representative vulnerable corridors across the 8 NER states ($N=6,000$ samples; $4,800$ train / $1,200$ test; 24.3% positive failure rate). Data was strictly split **before** fitting imputers, encoders, and scalers to prevent data leakage.
 
+#### Model Architecture & Hyperparameters:
+- **Preprocessing**: `ColumnTransformer` with `SimpleImputer(strategy="median")` + `StandardScaler` for 14 continuous terrain/weather/sensor features; `SimpleImputer(strategy="most_frequent")` + `OneHotEncoder(handle_unknown="ignore")` for 2 categorical geology features.
+- **Classifier**: `RandomForestClassifier` (120 estimators, `max_depth=14`, `min_samples_split=6`, `min_samples_leaf=2`, `class_weight="balanced"`, `random_state=42`).
+
 #### Model Comparison Matrix:
 In landslide forecasting, **a False Negative is catastrophic** (failure to alert before collapse), whereas a False Positive causes a temporary road caution. Therefore, models were benchmarked with an emphasis on **Recall**:
 
@@ -159,6 +163,27 @@ In landslide forecasting, **a False Negative is catastrophic** (failure to alert
 | **F1-Score** | 0.0000 | 0.9488 | **0.9018** |
 | **ROC-AUC Score** | 0.5000 | 0.9970 | **0.9934** |
 | **5-Fold Cross-Validation** | N/A | $0.9968 \pm 0.0006$ | **$0.9939 \pm 0.0010$** |
+
+#### Production Confusion Matrix (Holdout Test Set, $N = 1,200$):
+
+| Predicted \ Actual | Stable Slope (Actual 0) | Landslide Event (Actual 1) | Row Total |
+| :--- | :---: | :---: | :---: |
+| **Predicted Stable (0)** | **859** (True Negative) | **12** (False Negative) | 871 |
+| **Predicted Landslide (1)** | **49** (False Positive) | **280** (True Positive) | 329 |
+| **Column Total** | 908 (75.7%) | 292 (24.3%) | **1,200** |
+
+- **Recall**: $\frac{280}{280 + 12} = \mathbf{95.89\%}$ (280 out of 292 actual landslides detected).
+- **Precision**: $\frac{280}{280 + 49} = \mathbf{85.11\%}$.
+- **F1-Score**: $2 \times \frac{0.8511 \times 0.9589}{0.8511 + 0.9589} = \mathbf{0.9018}$.
+
+#### Reproducibility Instructions:
+```bash
+# 1. Regenerate dataset and train/evaluate all models
+python -m backend.ml_engine.train
+
+# 2. Verify all 18 integration and ML tests
+pytest tests/ -v
+```
 
 #### Top 8 Predictive Features:
 ```
