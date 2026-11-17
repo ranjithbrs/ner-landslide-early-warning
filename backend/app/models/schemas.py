@@ -50,8 +50,8 @@ class SensorReadingCreate(BaseModel):
     station_name: str
     state: str
     district: str
-    latitude: float
-    longitude: float
+    latitude: float = Field(..., ge=-90.0, le=90.0)
+    longitude: float = Field(..., ge=-180.0, le=180.0)
     soil_moisture_pct: float = Field(..., ge=0.0, le=100.0)
     pore_pressure_kpa: float
     rainfall_1h_mm: float = Field(..., ge=0.0)

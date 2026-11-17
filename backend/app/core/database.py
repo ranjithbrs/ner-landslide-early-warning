@@ -21,6 +21,8 @@ def get_db_connection() -> Generator[sqlite3.Connection, None, None]:
     """Context manager for obtaining a thread-safe database connection."""
     conn = sqlite3.connect(get_db_path(), timeout=15.0)
     conn.row_factory = sqlite3.Row  # Access columns by name
+    conn.execute("PRAGMA journal_mode = WAL;")
+    conn.execute("PRAGMA busy_timeout = 10000;")
     conn.execute("PRAGMA foreign_keys = ON;")
     try:
         yield conn

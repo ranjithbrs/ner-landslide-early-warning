@@ -95,9 +95,9 @@ class TrainedLandslidePredictor(BaseLandslideModel):
         # - Real-time rainfall trigger vs regional threshold (30%)
         # - Soil moisture saturation (20%)
         # - Biaxial ground tilt displacement (15%)
-        rain_ratio = min(input_data.meteorology.rainfall_24h_mm / settings.RAINFALL_RED_THRESHOLD_MM, 1.2)
-        moisture_ratio = min(input_data.geotechnical.soil_moisture_pct / settings.SOIL_MOISTURE_CRITICAL_PCT, 1.2)
-        tilt_ratio = min(input_data.geotechnical.tilt_rate_mm_h / 2.0, 1.5)
+        rain_ratio = min(max(float(input_data.meteorology.rainfall_24h_mm) / settings.RAINFALL_RED_THRESHOLD_MM, 0.0), 1.2)
+        moisture_ratio = min(max(float(input_data.geotechnical.soil_moisture_pct) / settings.SOIL_MOISTURE_CRITICAL_PCT, 0.0), 1.2)
+        tilt_ratio = min(max(float(input_data.geotechnical.tilt_rate_mm_h) / 2.0, 0.0), 1.5)
 
         dlhi = (
             (proba * 100.0) * 0.35

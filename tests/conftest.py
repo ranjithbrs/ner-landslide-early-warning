@@ -2,6 +2,14 @@
 Pytest configuration and shared fixtures for the test suite.
 """
 
+import sys
+from pathlib import Path
+
+# Guarantee project root is in sys.path across all operating systems and CI environments
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 import pytest
 from fastapi.testclient import TestClient
 from backend.app.main import app

@@ -10,6 +10,8 @@ jobs:
   test:
     name: Run Pytest Suite & Architecture Validation
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: .
 
     steps:
       - name: Checkout code
@@ -32,4 +34,4 @@ jobs:
 
       - name: Execute automated test suite
         run: |
-          pytest tests/ -v
+          python -m pytest tests/ -v
